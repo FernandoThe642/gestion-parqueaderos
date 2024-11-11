@@ -1,1 +1,44 @@
-<p>user works!</p>
+<div class="perfil-container" *ngIf="!cargando; else cargandoTemplate">
+    <h2>Perfil de Usuario</h2>
+    <div class="form-group">
+      <img [src]="fotoPerfilUrl" alt="Foto de perfil" class="foto-perfil" *ngIf="fotoPerfilUrl" />
+      <p *ngIf="!fotoPerfilUrl">No hay foto disponible</p>
+      <button type="button" (click)="editarFoto()">Editar Foto</button>
+  
+      <!-- Campo de subir foto, solo visible si se está editando -->
+      <div *ngIf="editandoFoto">
+        <input type="file" (change)="subirFoto($event)" />
+      </div>
+    </div>
+  
+    <form [formGroup]="perfilForm" (ngSubmit)="actualizarPerfil()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" />
+      </div>
+  
+      <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" formControlName="nombre" />
+      </div>
+  
+      <div class="form-group">
+        <label for="telefono">Teléfono</label>
+        <input id="telefono" type="text" formControlName="telefono" />
+      </div>
+  
+      <div class="form-group">
+        <label for="cedula">Cédula</label>
+        <input id="cedula" type="text" formControlName="cedula" />
+      </div>
+  
+      <button type="submit">Actualizar Perfil</button>
+    </form>
+  
+    <p *ngIf="mensaje">{{ mensaje }}</p>
+  </div>
+  
+  <ng-template #cargandoTemplate>
+    <p>Cargando...</p>
+  </ng-template>
+  

@@ -1,1 +1,58 @@
-<p>admin-user-management works!</p>
+<div *ngIf="cargando">Cargando usuarios...</div>
+<div *ngIf="!cargando">
+  <h2>Gestión de Usuarios</h2>
+  <table class="usuarios-tabla">
+    <thead>
+      <tr>
+        <th>Foto</th>
+        <th>Nombre</th>
+        <th>Cédula</th>
+        <th>Teléfono</th>
+        <th>Email</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let usuario of usuarios">
+        <td><img [src]="usuario.fotoPerfil || usuario.fotoURL" alt="Foto de {{ usuario.nombre }}" class="foto-tabla" /></td>
+        <td>{{ usuario.nombre }}</td>
+        <td>{{ usuario.cedula }}</td>
+        <td>{{ usuario.telefono }}</td>
+        <td>{{ usuario.email }}</td>
+        <td>
+          <button (click)="editarUsuario(usuario)">Editar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="usuarioSeleccionado" class="modal">
+    <div class="modal-content">
+      <h3>Editar Usuario</h3>
+      <form [formGroup]="formularioEdicion" (ngSubmit)="guardarCambios()">
+
+        <img [src]="usuarioSeleccionado.fotoPerfil || usuarioSeleccionado.fotoURL" alt="Foto de {{ usuarioSeleccionado.nombre }}" class="foto-modal" />
+        <input type="file" (change)="subirFoto($event)" />        
+        <br>
+        <label for="nombre">Nombre:  </label>
+        <input id="nombre" type="text" formControlName="nombre" />
+        <br>
+        <label for="telefono">Teléfono: </label>
+        <input id="telefono" type="text" formControlName="telefono" />
+        <br>
+        <label for="cedula">Cédula:   </label>
+        <input id="cedula" type="text" formControlName="cedula" />
+        <br>
+        <label for="email">Email:    </label>
+        <input id="email" type="email" formControlName="email"  />
+
+
+
+        <div class="modal-actions">
+          <button type="submit">Guardar</button>
+          <button type="button" (click)="cancelarEdicion()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

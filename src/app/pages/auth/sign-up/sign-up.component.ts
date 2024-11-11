@@ -16,6 +16,7 @@ export class SignUpComponent {
   password: string = ''
   nombre: string = ''
   telefono: string = ''
+  cedula: string = ''
 
   registrado: boolean = false
 
@@ -37,6 +38,7 @@ export class SignUpComponent {
               nombre: this.nombre,
               telefono: this.telefono,
               email: this.email,
+              cedula: this.cedula, 
               fotoURL: fotoURL,
               role: 'user'
             };
