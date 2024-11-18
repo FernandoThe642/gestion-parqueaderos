@@ -54,7 +54,7 @@ export class AppComponent implements OnInit {
   this.authService.cerrarSesion().subscribe(() => {
       this.usuarioAutenticado = false
       this.rolUsuario = null
-      this.router.navigate(['/login'])
+      this.router.navigate(['/home'])
     })
   }
 }

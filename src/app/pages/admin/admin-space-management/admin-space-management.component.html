@@ -1,0 +1,42 @@
+<div *ngIf="cargando">Cargando espacios...</div>
+<div *ngIf="!cargando">
+
+    <!-- Tabla de espacios -->
+    <table class="tabla-espacios">
+    <thead>
+        <tr>
+        <th>Nombre</th>
+        <th>Disponible</th>
+        <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let espacio of espacios">
+        <td>{{ espacio.nombre }}</td>
+        <td>{{ espacio.disponible ? 'Sí' : 'No' }}</td>
+        <td>
+            <button (click)="editarEspacio(espacio)">Editar</button>
+            <button (click)="eliminarEspacio(espacio.id)">Eliminar</button>
+        </td>
+        </tr>
+    </tbody>
+    </table>
+
+    <!-- Formulario para agregar/editar espacios -->
+    <div class="formulario">
+    <h3 *ngIf="espacioSeleccionado">Editar Espacio</h3>
+    <h3 *ngIf="!espacioSeleccionado">Crear Nuevo Espacio</h3>
+    <form [formGroup]="formularioEspacio" (ngSubmit)="espacioSeleccionado ? guardarCambios() : crearEspacio()">
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" formControlName="nombre" />
+
+        <label for="disponible">Disponible</label>
+        <input id="disponible" type="checkbox" formControlName="disponible" />
+
+        <div class="botones">
+        <button type="submit">{{ espacioSeleccionado ? 'Guardar Cambios' : 'Crear' }}</button>
+        <button type="button" (click)="cancelarEdicion()" *ngIf="espacioSeleccionado">Cancelar</button>
+        </div>
+    </form>
+    </div>
+</div>

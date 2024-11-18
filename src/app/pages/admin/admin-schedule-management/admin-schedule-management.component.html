@@ -1,0 +1,33 @@
+<div *ngIf="cargando">Cargando horarios...</div>
+<div *ngIf="!cargando">
+  <h2>Gestión de Horarios</h2>
+
+  <!-- Lista de días de la semana -->
+  <ul class="lista-dias">
+    <li *ngFor="let dia of diasDeLaSemana">
+      <span>{{ dia | titlecase }}</span>
+      <span *ngIf="!diaSeleccionado || diaSeleccionado !== dia">
+        {{ obtenerHorario(dia) }}
+      </span>
+      <button *ngIf="!diaSeleccionado || diaSeleccionado !== dia" (click)="definirHorario(dia)">Editar</button>
+    </li>
+  </ul>
+  
+
+  <!-- Formulario para definir/editar horarios -->
+  <div *ngIf="diaSeleccionado" class="formulario">
+    <h3>Definir Horario para {{ diaSeleccionado | titlecase }}</h3>
+    <form [formGroup]="formularioHorario" (ngSubmit)="guardarHorario()">
+      <label for="horaApertura">Hora de Apertura</label>
+      <input id="horaApertura" type="time" formControlName="horaApertura" />
+
+      <label for="horaCierre">Hora de Cierre</label>
+      <input id="horaCierre" type="time" formControlName="horaCierre" />
+
+      <div class="botones">
+        <button type="submit">Guardar</button>
+        <button type="button" (click)="cancelarEdicion()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

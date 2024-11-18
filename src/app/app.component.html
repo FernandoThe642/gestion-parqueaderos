@@ -9,16 +9,19 @@
   <div class="header-container">
     <header>
       <img type="image/webp" src="./assets/logo.webp" alt="Logo UPS">
-      <h1>Parqueaderos UPS</h1>
+      <h1>Parqueadero</h1>
       <button class="auth-button" *ngIf="!usuarioAutenticado" (click)="iniciarSesion()">Iniciar sesión</button>
       <button class="auth-button" *ngIf="usuarioAutenticado" (click)="cerrarSesion()">Cerrar sesión</button>
     </header>
     
     <nav>
       <a [routerLink]="['/home']">Inicio</a>
-      <a [routerLink]="['/signup']" *ngIf="!usuarioAutenticado">Registrarse</a>
-      <a [routerLink]="['/user']" *ngIf="usuarioAutenticado && rolUsuario === 'user'">Página de Usuario</a>
-      <a [routerLink]="['/admin/user-management']" *ngIf="usuarioAutenticado && rolUsuario === 'admin'">Gestión de Usuarios</a>
+      <a [routerLink]="['/space-management']" *ngIf="usuarioAutenticado && rolUsuario === 'admin'">Gestión de Espacios</a>
+      <a [routerLink]="['/tariff-management']" *ngIf="usuarioAutenticado && rolUsuario === 'admin'">Gestión de Tarifa</a>
+      <a [routerLink]="['/contract-management']" *ngIf="usuarioAutenticado && rolUsuario === 'admin'">Gestión de Contratos</a>
+      <a [routerLink]="['/schedule-management']" *ngIf="usuarioAutenticado && rolUsuario === 'admin'">Gestión de Horarios</a>
+      <a [routerLink]="['/user-management']" *ngIf="usuarioAutenticado && rolUsuario === 'admin'">Gestión de Usuarios</a>
+      <a [routerLink]="['/user']" *ngIf="usuarioAutenticado">Perfil</a>
     </nav>
   </div>
 

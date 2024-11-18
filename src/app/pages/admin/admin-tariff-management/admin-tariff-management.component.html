@@ -1,0 +1,48 @@
+<div *ngIf="cargando">Cargando tarifas...</div>
+<div *ngIf="!cargando">
+  <h2>Gestión de Tarifas</h2>
+
+  <!-- Tabla de tarifas -->
+  <table class="tabla-tarifas">
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Valor</th>
+        <th>Descripción</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let tarifa of tarifas">
+        <td>{{ tarifa.tipo }}</td>
+        <td>{{ tarifa.valor | currency }}</td>
+        <td>{{ tarifa.descripcion }}</td>
+        <td>
+          <button (click)="editarTarifa(tarifa)">Editar</button>
+          <button (click)="eliminarTarifa(tarifa.id)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Formulario para agregar/editar tarifas -->
+  <div class="formulario">
+    <h3 *ngIf="tarifaSeleccionada">Editar Tarifa</h3>
+    <h3 *ngIf="!tarifaSeleccionada">Crear Nueva Tarifa</h3>
+    <form [formGroup]="formularioTarifa" (ngSubmit)="tarifaSeleccionada ? guardarCambios() : crearTarifa()">
+      <label for="tipo">Tipo</label>
+      <input id="tipo" type="text" formControlName="tipo" />
+
+      <label for="valor">Valor</label>
+      <input id="valor" type="number" formControlName="valor" />
+
+      <label for="descripcion">Descripción</label>
+      <textarea id="descripcion" formControlName="descripcion"></textarea>
+
+      <div class="botones">
+        <button type="submit">{{ tarifaSeleccionada ? 'Guardar Cambios' : 'Crear' }}</button>
+        <button type="button" (click)="cancelarEdicion()" *ngIf="tarifaSeleccionada">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
