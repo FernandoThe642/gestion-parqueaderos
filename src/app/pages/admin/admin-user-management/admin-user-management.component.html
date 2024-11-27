@@ -32,7 +32,6 @@
       <form [formGroup]="formularioEdicion" (ngSubmit)="guardarCambios()">
 
         <img [src]="usuarioSeleccionado.fotoPerfil || usuarioSeleccionado.fotoURL" alt="Foto de {{ usuarioSeleccionado.nombre }}" class="foto-modal" />
-        <input type="file" (change)="subirFoto($event)" />        
         <br>
         <label for="nombre">Nombre:  </label>
         <input id="nombre" type="text" formControlName="nombre" />

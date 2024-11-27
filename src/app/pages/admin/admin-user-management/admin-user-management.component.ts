@@ -60,25 +60,5 @@ export class AdminUserManagementComponent implements OnInit {
     this.usuarioSeleccionado = null;
   }
   
-  subirFoto(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const archivo = input.files[0];
-      const uid = this.usuarioSeleccionado.uid;
-  
-      this.userService.subirFotoPerfil(archivo).subscribe({
-        next: (fotoURL) => {
-          this.usuarioSeleccionado.fotoPerfil = fotoURL;
-          this.formularioEdicion.patchValue({ fotoPerfil: fotoURL });
-          this.userService.actualizarUsuario(uid, { fotoPerfil: fotoURL }).subscribe(() => {
-            console.log('Foto de perfil actualizada.');
-          });
-        },
-        error: () => {
-          console.error('Error al subir la foto');
-        }
-      });
-    }
-  }
-  
+
 }
