@@ -1,0 +1,35 @@
+<div class="usuario-dashboard">
+    <h2>Bienvenido, {{ usuario?.nombre }}</h2>
+
+<section>
+    <h3>Horario de Atención</h3>
+    <ul>
+    <li *ngFor="let horario of horarios">
+        <strong style="text-transform: uppercase;">{{ horario.id }}</strong>: {{ horario.horaApertura }} - {{ horario.horaCierre }}
+    </li>
+    </ul>
+</section>
+
+<section>
+    <h3>Mis Contratos</h3>
+    <table>
+    <thead>
+        <tr>
+        <th>Espacio</th>
+        <th>Fecha Inicio</th>
+        <th>Fecha Fin</th>
+        <th>Monto</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let contrato of contratos">
+        <td>{{ obtenerNombreEspacio(contrato.espacio) }}</td>
+        <td>{{ contrato.inicio }}</td>
+        <td>{{ contrato.fin }}</td>
+        <td>{{ calcularMonto(contrato) | currency }}</td>
+        </tr>
+    </tbody>
+    </table>
+</section>
+</div>
+  

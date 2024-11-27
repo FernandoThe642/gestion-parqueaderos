@@ -12,6 +12,7 @@ import { AdminSpaceManagementComponent } from './pages/admin/admin-space-managem
 import { AdminTariffManagementComponent } from './pages/admin/admin-tariff-management/admin-tariff-management.component';
 import { AdminScheduleManagementComponent } from './pages/admin/admin-schedule-management/admin-schedule-management.component';
 import { AdminContractManagementComponent } from './pages/admin/admin-contract-management/admin-contract-management.component';
+import { UserDashboardComponent } from './pages/user/user-dashboard/user-dashboard.component';
 
 export const routes: Routes = [
     {
@@ -26,6 +27,11 @@ export const routes: Routes = [
     {
         path: 'user',
         component: UserComponent,
+        canActivate: [canActivateAuth]  // Aplicar el AuthGuard como función
+    },
+    {
+        path: 'user-dashboard',
+        component: UserDashboardComponent,
         canActivate: [canActivateAuth]  // Aplicar el AuthGuard como función
     },
     {

@@ -21,7 +21,9 @@
       <a [routerLink]="['/contract-management']" *ngIf="usuarioAutenticado && rolUsuario === 'admin'">Gestión de Contratos</a>
       <a [routerLink]="['/schedule-management']" *ngIf="usuarioAutenticado && rolUsuario === 'admin'">Gestión de Horarios</a>
       <a [routerLink]="['/user-management']" *ngIf="usuarioAutenticado && rolUsuario === 'admin'">Gestión de Usuarios</a>
-      <a [routerLink]="['/user']" *ngIf="usuarioAutenticado">Perfil</a>
+       <a [routerLink]="['/user-dashboard']" *ngIf="usuarioAutenticado && rolUsuario=== 'user'">Servicios</a>
+         <a [routerLink]="['/user']" *ngIf="usuarioAutenticado && rolUsuario=== 'user'">Perfil</a>
+
     </nav>
   </div>
 

@@ -1,67 +1,49 @@
 <div *ngIf="cargando">Cargando contratos...</div>
 <div *ngIf="!cargando">
-    <h2>Gestión de Contratos</h2>
+  <h2>Gestión de Contratos</h2>
 
-    <!-- Tabla de contratos -->
-    <table class="tabla-contratos">
+  <!-- Tabla de contratos -->
+  <table class="tabla-contratos">
     <thead>
-        <tr>
+      <tr>
         <th>Usuario</th>
         <th>Espacio</th>
         <th>Inicio</th>
         <th>Fin</th>
         <th>Monto</th>
-        <th>Estado</th>
         <th>Acciones</th>
-        </tr>
+      </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let contrato of contratos">
-        <td>{{ contrato.usuario }}</td>
-        <td>{{ contrato.espacio }}</td>
+      <tr *ngFor="let contrato of contratos">
+        <td>{{ contrato.nombreUsuario}}</td>
+        <td>{{ obtenerNombreEspacio(contrato.espacio) }}</td>
         <td>{{ contrato.inicio }}</td>
         <td>{{ contrato.fin }}</td>
-        <td>{{ contrato.monto | currency }}</td>
-        <td>{{ contrato.activo ? 'Activo' : 'Inactivo' }}</td>
+        <td>{{ calcularMonto(contrato) | currency }}</td>
         <td>
-            <button (click)="editarContrato(contrato)">Editar</button>
-            <button (click)="eliminarContrato(contrato.id)">Eliminar</button>
+          <button (click)="editarContrato(contrato)">Editar</button>
         </td>
-        </tr>
+      </tr>
     </tbody>
-    </table>
+  </table>
 
-    <!-- Formulario para agregar/editar contratos -->
-    <div class="formulario">
-    <h3 *ngIf="contratoSeleccionado">Editar Contrato</h3>
-    <h3 *ngIf="!contratoSeleccionado">Crear Nuevo Contrato</h3>
-    <form [formGroup]="formularioContrato" (ngSubmit)="contratoSeleccionado ? guardarCambios() : crearContrato()">
-        <label for="usuario">Usuario</label>
-        <select id="usuario" formControlName="usuario">
-        <option *ngFor="let usuario of usuarios" [value]="usuario.uid">{{ usuario.nombre }}</option>
-        </select>
+  <!-- Formulario para editar contrato -->
+  <div *ngIf="contratoSeleccionado" class="formulario">
+    <h3>Editar Contrato</h3>
+    <form [formGroup]="formularioContrato" (ngSubmit)="guardarCambios()">
+      <label for="tarifa">Tarifa</label>
+      <select id="tarifa" formControlName="tarifa">
+        <option *ngFor="let tarifa of tarifas" [value]="tarifa.id">{{ tarifa.tipo }} - {{ tarifa.valor | currency }}</option>
+      </select>
 
-        <label for="espacio">Espacio</label>
-        <select id="espacio" formControlName="espacio">
-        <option *ngFor="let espacio of espacios" [value]="espacio.id">{{ espacio.nombre }}</option>
-        </select>
+      <label for="inicio">Fecha de Inicio</label>
+      <input id="inicio" type="date" formControlName="inicio" />
 
-        <label for="inicio">Inicio</label>
-        <input id="inicio" type="date" formControlName="inicio" />
-
-        <label for="fin">Fin</label>
-        <input id="fin" type="date" formControlName="fin" />
-
-        <label for="monto">Monto</label>
-        <input id="monto" type="number" formControlName="monto" />
-
-        <label for="activo">Activo</label>
-        <input id="activo" type="checkbox" formControlName="activo" />
-
-        <div class="botones">
-        <button type="submit">{{ contratoSeleccionado ? 'Guardar Cambios' : 'Crear' }}</button>
-        <button type="button" (click)="cancelarEdicion()" *ngIf="contratoSeleccionado">Cancelar</button>
-        </div>
+      <div class="botones">
+        <button type="submit">Guardar Cambios</button>
+        <button type="button" (click)="cancelarEdicion()">Cancelar</button>
+      </div>
     </form>
-    </div>
+  </div>
 </div>

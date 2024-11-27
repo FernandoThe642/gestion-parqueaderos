@@ -6,14 +6,21 @@
     text-align: left;
   
     th, td {
-      padding: 12px;
-      border: 1px solid #ddd;
-    }
+      padding: 0.8rem;
+      text-align: left;
+      border: 1px solid #bcb9b9;
+  }
   
-    th {
-      background-color: #f4f4f4;
-      color: #333;
-    }
+  th {
+      background-color: #333;
+      color: #fff;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+  }
+  
+  tr:hover {
+      background-color: #a8a1a1;
+  }
   
     .foto-tabla {
       width: 50px;
