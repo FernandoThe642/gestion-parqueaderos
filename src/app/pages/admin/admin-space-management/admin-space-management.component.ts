@@ -127,8 +127,11 @@ export class AdminSpaceManagementComponent implements OnInit {
           meses: contrato.meses,
           fin: contrato.fin,
         });
+        this.formularioContrato.get('cedula')?.disable(); 
       } else {
+    
         this.formularioContrato.reset({ meses: 1 });
+        this.formularioContrato.get('cedula')?.enable();
       }
       this.mostrarModalContrato = true;
     });
@@ -138,6 +141,7 @@ export class AdminSpaceManagementComponent implements OnInit {
   cerrarModalContrato(): void {
     this.mostrarModalContrato = false;
     this.formularioContrato.reset({ meses: 1 });
+    this.formularioContrato.get('cedula')?.enable(); 
   }
 
   abrirModalEspacio(): void {

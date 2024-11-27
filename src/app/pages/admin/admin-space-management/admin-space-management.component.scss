@@ -19,12 +19,13 @@
   text-align: center;
 
   &.disponible {
-    background-color: #28a745; // Verde
+    background-color: #3ab557; 
   }
-
+  
   &.ocupado {
-    background-color: #dc3545; // Rojo
+    background-color: #e96262; 
   }
+  
 }
 
 .modal {
