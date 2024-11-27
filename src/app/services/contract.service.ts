@@ -53,4 +53,19 @@ export class ContractService {
         .catch((error) => observer.error(error));
     });
   }
+
+  obtenerContratoPorEspacio(espacioId: string): Observable<any> {
+    const contratoDocRef = collection(this.firestore, 'contratos');
+    return new Observable((observer) => {
+      collectionData(contratoDocRef, { idField: 'id' }).subscribe((contratos: any[]) => {
+        const contrato = contratos.find((c) => c.espacio === espacioId);
+        if (contrato) {
+          observer.next(contrato);
+        } else {
+          observer.next(null); // No hay contrato asociado
+        }
+        observer.complete();
+      });
+    });
+  }
 }

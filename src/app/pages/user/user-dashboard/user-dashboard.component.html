@@ -31,5 +31,45 @@
     </tbody>
     </table>
 </section>
+<section>
+    <h3>Espacios Disponibles</h3>
+    <div class="contenedor-espacios">
+      <div 
+        *ngFor="let espacio of espacios" 
+        class="espacio disponible"
+        (click)="abrirModalContrato(espacio)">
+        {{ espacio.nombre }}
+      </div>
+    </div>
+  </section>
+  
+  <div *ngIf="mostrarModalContrato" class="modal">
+    <div class="modal-contenido">
+      <h3>Crear Contrato para {{ espacioSeleccionado?.nombre }}</h3>
+      <form [formGroup]="formularioContrato" (ngSubmit)="crearContrato()">
+        <label for="tarifa">Tarifa</label>
+        <select id="tarifa" formControlName="tarifa">
+          <option *ngFor="let tarifa of tarifas" [value]="tarifa.id">
+            {{ tarifa.tipo }} - {{ tarifa.valor | currency }}
+          </option>
+        </select>
+  
+        <label for="inicio">Fecha de Inicio</label>
+        <input id="inicio" type="date" formControlName="inicio" />
+  
+        <label for="meses">Número de Meses</label>
+        <input id="meses" type="number" formControlName="meses" (change)="calcularFechaFin()" />
+  
+        <label for="fin">Fecha de Fin</label>
+        <input id="fin" type="date" formControlName="fin" readonly />
+  
+        <div class="botones">
+          <button type="submit">Crear</button>
+          <button type="button" (click)="cerrarModalContrato()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
 </div>
   

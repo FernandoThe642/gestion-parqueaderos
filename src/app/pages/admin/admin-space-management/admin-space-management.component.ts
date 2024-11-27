@@ -117,8 +117,23 @@ export class AdminSpaceManagementComponent implements OnInit {
 
   abrirModalContrato(espacio: any): void {
     this.espacioSeleccionado = espacio;
-    this.mostrarModalContrato = true;
+  
+    this.contractService.obtenerContratoPorEspacio(espacio.id).subscribe((contrato) => {
+      if (contrato) {
+        this.formularioContrato.patchValue({
+          cedula: contrato.cedula,
+          tarifa: contrato.tarifa,
+          inicio: contrato.inicio,
+          meses: contrato.meses,
+          fin: contrato.fin,
+        });
+      } else {
+        this.formularioContrato.reset({ meses: 1 });
+      }
+      this.mostrarModalContrato = true;
+    });
   }
+  
 
   cerrarModalContrato(): void {
     this.mostrarModalContrato = false;
