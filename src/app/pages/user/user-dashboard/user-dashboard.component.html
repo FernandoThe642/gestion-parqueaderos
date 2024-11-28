@@ -23,7 +23,7 @@
     </thead>
     <tbody>
         <tr *ngFor="let contrato of contratos">
-        <td>{{ obtenerNombreEspacio(contrato.espacio) }}</td>
+          <td>{{ obtenerNombreEspacio(contrato.espacio) }}</td>
         <td>{{ contrato.inicio }}</td>
         <td>{{ contrato.fin }}</td>
         <td>{{ calcularMonto(contrato) | currency }}</td>

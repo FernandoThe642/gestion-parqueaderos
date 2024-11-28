@@ -6,6 +6,7 @@ import { SpaceService } from '../../../services/space.service';
 import { TariffService } from '../../../services/tariff.service';
 import { ReactiveFormsModule,  FormBuilder, FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -35,10 +36,14 @@ export class UserDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.spaceService.obtenerEspacios().subscribe((espacios) => {
+      this.espacios = espacios;
+    });
+ 
     this.cargarUsuario();
     this.cargarHorarios();
     this.cargarTarifas();
-    this.cargarEspacios();
+
     this.inicializarFormularioContrato();
   }
   cargarUsuario(): void {
@@ -65,10 +70,11 @@ export class UserDashboardComponent implements OnInit {
   cargarContratos(): void {
     this.contractService.obtenerContratos().subscribe((contratos) => {
       this.contratos = contratos.filter(
-        (contrato) => contrato.cedula === this.usuario?.cedula
+        (contrato) => contrato.nombreUsuario === this.usuario?.nombre
       );
     });
   }
+  
 
 
 
@@ -111,11 +117,12 @@ export class UserDashboardComponent implements OnInit {
     fin.setMonth(fin.getMonth() + parseInt(meses, 10));
     this.formularioContrato.patchValue({ fin: fin.toISOString().split('T')[0] });
   }
-
-  obtenerNombreEspacio(idEspacio: string): string {
-    const espacio = this.espacios.find(e => e.id === idEspacio);
+  obtenerNombreEspacio(id: string): string {
+    const espacio = this.espacios.find((e) => e.id === id);
     return espacio ? espacio.nombre : 'Desconocido';
   }
+  
+  
   
 
   crearContrato(): void {
@@ -124,6 +131,7 @@ export class UserDashboardComponent implements OnInit {
         ...this.formularioContrato.value,
         espacio: this.espacioSeleccionado.id,
         cedula: this.usuario.cedula,
+        nombreUsuario: this.usuario.nombre,
         estado: 'Activo',
       };
 

@@ -88,6 +88,7 @@ export class AdminContractManagementComponent implements OnInit {
     this.formularioContrato.patchValue({
       tarifa: contrato.tarifa,
       inicio: contrato.inicio,
+      
     });
   }
 

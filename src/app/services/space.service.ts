@@ -69,4 +69,6 @@ export class SpaceService {
         .catch((error) => observer.error(error));
     });
   }
+
+
 }
