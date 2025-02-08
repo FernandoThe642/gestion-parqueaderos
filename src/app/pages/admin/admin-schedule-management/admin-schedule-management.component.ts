@@ -1,23 +1,23 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ScheduleService } from '../../../services/schedule.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-admin-schedule-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './admin-schedule-management.component.html',
   styleUrl: './admin-schedule-management.component.scss'
 })
-
 export class AdminScheduleManagementComponent implements OnInit {
-  horarios: any[] = []; // Lista de horarios
-  formularioHorario!: FormGroup; // Formulario para definir/editar horarios
-  diaSeleccionado: string | null = null; // Día en edición
+  horarios: any[] = [];
+  formularioHorario!: FormGroup;
+  diaSeleccionado: string | null = null;
   cargando: boolean = true;
 
-  diasDeLaSemana = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+
+  diasDeLaSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
   constructor(private scheduleService: ScheduleService, private fb: FormBuilder) {}
 
@@ -35,40 +35,67 @@ export class AdminScheduleManagementComponent implements OnInit {
 
   inicializarFormulario(): void {
     this.formularioHorario = this.fb.group({
-      horaApertura: [''],
-      horaCierre: ['']
+      dia: ['', Validators.required],
+      inicio: ['', Validators.required], 
+      fin: ['', Validators.required]     
     });
   }
+  
 
   definirHorario(dia: string): void {
     this.diaSeleccionado = dia;
-    const horarioExistente = this.horarios.find((h) => h.id === dia);
-    if (horarioExistente) {
-      this.formularioHorario.patchValue(horarioExistente); // Rellenar formulario con horario existente
-    } else {
-      this.formularioHorario.reset(); // Limpiar formulario para un nuevo horario
-    }
+    this.scheduleService.obtenerHorariosPorDia(dia).subscribe((horarios) => {
+      if (horarios.length > 0) {
+        this.formularioHorario.patchValue(horarios[0]); // Si ya existe un horario, lo llena
+      } else {
+        this.formularioHorario.reset({ dia: dia }); // Si no, deja los campos en blanco
+      }
+    });
   }
 
   guardarHorario(): void {
     if (this.formularioHorario.valid && this.diaSeleccionado) {
-      const datos = this.formularioHorario.value;
-      this.scheduleService.definirHorario(this.diaSeleccionado, datos).subscribe(() => {
-        this.cargarHorarios(); // Recargar lista de horarios
-        this.diaSeleccionado = null; // Salir del modo de edición
+      const datos = {
+        dia: this.diaSeleccionado,
+        inicio: this.formularioHorario.value.inicio,
+        fin: this.formularioHorario.value.fin
+      };
+
+      this.scheduleService.definirHorario(datos).subscribe({
+        next: () => {
+          this.cargarHorarios();
+          this.cerrarModal();
+        },
+        error: (error) => {
+          console.error('Error al guardar horario:', error);
+        }
       });
     }
   }
 
   obtenerHorario(dia: string): string {
-    const horario = this.horarios.find((h) => h.id === dia);
-    if (horario) {
-      return `${horario.horaApertura || '--:--'} - ${horario.horaCierre || '--:--'}`;
-    }
-    return '--:-- - --:--';
+    const horario = this.horarios.find((h) => h.dia === dia);
+    return horario ? `${horario.inicio} - ${horario.fin}` : '--:-- - --:--';
   }
-  
+
   cancelarEdicion(): void {
+    this.diaSeleccionado = null;
+    this.formularioHorario.reset();
+  }
+
+  
+  abrirModal(dia: string): void {
+    this.diaSeleccionado = dia;
+    this.scheduleService.obtenerHorariosPorDia(dia).subscribe((horarios) => {
+      if (horarios.length > 0) {
+        this.formularioHorario.patchValue(horarios[0]); 
+      } else {
+        this.formularioHorario.reset({ dia: dia });
+      }
+    });
+  }
+
+  cerrarModal(): void {
     this.diaSeleccionado = null;
     this.formularioHorario.reset();
   }

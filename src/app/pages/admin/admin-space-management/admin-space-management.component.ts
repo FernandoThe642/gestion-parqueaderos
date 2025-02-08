@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { SpaceService } from '../../../services/space.service';
 import { ContractService } from '../../../services/contract.service';
 import { TariffService } from '../../../services/tariff.service';
@@ -13,7 +13,6 @@ import { CommonModule } from '@angular/common';
   templateUrl: './admin-space-management.component.html',
   styleUrl: './admin-space-management.component.scss'
 })
-
 export class AdminSpaceManagementComponent implements OnInit {
   espacios: any[] = [];
   tarifas: any[] = [];
@@ -22,7 +21,6 @@ export class AdminSpaceManagementComponent implements OnInit {
 
   mostrarModalContrato: boolean = false;
   mostrarModalEspacio: boolean = false;
-  mostrarModalEditarEspacio: boolean = false;
   espacioSeleccionado: any = null;
 
   formularioContrato!: FormGroup;
@@ -46,45 +44,21 @@ export class AdminSpaceManagementComponent implements OnInit {
 
   cargarEspacios(): void {
     this.spaceService.obtenerEspacios().subscribe((espacios) => {
-      // Ordenar espacios alfanuméricamente
-      this.espacios = espacios.sort((a, b) => this.ordenarAlfanumerico(a.nombre, b.nombre));
-      this.verificarDisponibilidad(); // Revisar disponibilidad
+      this.espacios = espacios;
+      this.verificarDisponibilidad();
       this.cargando = false;
     });
   }
-  
-  ordenarAlfanumerico(a: string, b: string): number {
-    const regex = /^([a-zA-Z]+)(\d+)$/;
-    const matchA = a.match(regex);
-    const matchB = b.match(regex);
-  
-    if (matchA && matchB) {
-      const [_, letraA, numeroA] = matchA;
-      const [__, letraB, numeroB] = matchB;
-  
-      // Comparar letras primero
-      const comparacionLetras = letraA.localeCompare(letraB);
-      if (comparacionLetras !== 0) {
-        return comparacionLetras;
-      }
-  
-      // Comparar números como enteros
-      return parseInt(numeroA, 10) - parseInt(numeroB, 10);
-    }
-  
-    // Si no coinciden con el patrón, usar comparación normal
-    return a.localeCompare(b);
-  }
-  
+
   verificarDisponibilidad(): void {
     this.espacios.forEach((espacio) => {
-      if (!espacio.disponible) {
-        // Si el espacio no está disponible, podría hacer otras verificaciones aquí
+      if (espacio.ocupado) {
         console.log(`El espacio ${espacio.nombre} está ocupado.`);
       }
     });
   }
 
+  
   cargarTarifas(): void {
     this.tariffService.obtenerTarifas().subscribe((tarifas) => {
       this.tarifas = tarifas;
@@ -99,50 +73,72 @@ export class AdminSpaceManagementComponent implements OnInit {
 
   inicializarFormularioContrato(): void {
     this.formularioContrato = this.fb.group({
-      cedula: [''],
-      tarifa: [''],
-      inicio: [''],
-      meses: [1],
-      fin: [''],
+      cedula: ['', Validators.required],
+      tarifa: ['', Validators.required],
+      inicio: ['', Validators.required],
+      meses: [1, [Validators.required, Validators.min(1)]],
+      fin: [{ value: '', disabled: true }]
     });
   }
 
   inicializarFormularioEspacio(): void {
     this.formularioEspacio = this.fb.group({
-      nombre: [''],
+      nombre: ['', Validators.required],
+      tarifa: ['', Validators.required] 
     });
   }
-
   
 
   abrirModalContrato(espacio: any): void {
     this.espacioSeleccionado = espacio;
-  
-    this.contractService.obtenerContratoPorEspacio(espacio.id).subscribe((contrato) => {
-      if (contrato) {
-        this.formularioContrato.patchValue({
-          cedula: contrato.cedula,
-          tarifa: contrato.tarifa,
-          inicio: contrato.inicio,
-          meses: contrato.meses,
-          fin: contrato.fin,
-        });
-        this.formularioContrato.get('cedula')?.disable(); 
-      } else {
-    
-        this.formularioContrato.reset({ meses: 1 });
-        this.formularioContrato.get('cedula')?.enable();
-      }
-      this.mostrarModalContrato = true;
-    });
+    this.formularioContrato.reset({ meses: 1 });
+    this.mostrarModalContrato = true;
   }
   
-
   cerrarModalContrato(): void {
     this.mostrarModalContrato = false;
     this.formularioContrato.reset({ meses: 1 });
-    this.formularioContrato.get('cedula')?.enable(); 
   }
+  
+  crearContrato(): void {
+    if (this.formularioContrato.valid) {
+      const datos = {
+        ...this.formularioContrato.value,
+        espacio: this.espacioSeleccionado.id,
+        estado: 'Activo'
+      };
+  
+      this.contractService.crearContrato(datos).subscribe(() => {
+        this.spaceService.actualizarEspacio({
+          id: this.espacioSeleccionado.id,
+          ocupado: true // Enviar "ocupado: true" en lugar de "disponible: false"
+        }).subscribe(() => {
+          this.cerrarModalContrato();
+          this.cargarEspacios();
+        });
+      });
+    }
+  }
+  
+  agregarEspacio(): void {
+    if (this.formularioEspacio.valid) {
+      const nuevoEspacio = {
+        nombre: this.formularioEspacio.value.nombre,
+        ocupado: false,
+        tarifa: { id: this.formularioEspacio.value.tarifa } // Se envía la tarifa seleccionada
+      };
+  
+      this.spaceService.crearEspacio(nuevoEspacio).subscribe(() => {
+        this.cerrarModalEspacio();
+        this.cargarEspacios();
+      }, error => {
+        console.error('Error al agregar espacio:', error);
+      });
+    }
+  }
+  
+  
+  
 
   abrirModalEspacio(): void {
     this.mostrarModalEspacio = true;
@@ -161,38 +157,36 @@ export class AdminSpaceManagementComponent implements OnInit {
     this.formularioContrato.patchValue({ fin: fin.toISOString().split('T')[0] });
   }
 
-  crearContrato(): void {
-    if (this.formularioContrato.valid) {
-      const usuarioSeleccionado = this.usuarios.find(
-        (usuario) => usuario.cedula === this.formularioContrato.value.cedula
-      );
+  
 
-      const datos = {
-        ...this.formularioContrato.value,
-        espacio: this.espacioSeleccionado.id,
-        estado: 'Activo', // El contrato se crea como Activo
-        nombreUsuario: usuarioSeleccionado?.nombre || 'Desconocido',
-      };
+  ordenarAlfanumerico(a: string, b: string): number {
+    const regex = /^([a-zA-Z]+)(\d+)$/;
+    const matchA = a.match(regex);
+    const matchB = b.match(regex);
 
-      this.contractService.crearContrato(datos).subscribe(() => {
-        this.spaceService.actualizarEspacio(this.espacioSeleccionado.id, { disponible: false }).subscribe(() => {
-          this.cerrarModalContrato();
-          this.cargarEspacios();
-        });
-      });
+    if (matchA && matchB) {
+      const [_, letraA, numeroA] = matchA;
+      const [__, letraB, numeroB] = matchB;
+
+      const comparacionLetras = letraA.localeCompare(letraB);
+      if (comparacionLetras !== 0) {
+        return comparacionLetras;
+      }
+      return parseInt(numeroA, 10) - parseInt(numeroB, 10);
     }
+
+    return a.localeCompare(b);
   }
 
-  agregarEspacio(): void {
-    if (this.formularioEspacio.valid) {
-      const nuevoEspacio = {
-        ...this.formularioEspacio.value,
-        disponible: true, // Siempre disponible al crear
-      };
-      this.spaceService.crearEspacio(nuevoEspacio).subscribe(() => {
-        this.cerrarModalEspacio();
-        this.cargarEspacios();
-      });
-    }
+
+
+  actualizarEspacio(id: number, estado: boolean): void {
+    this.spaceService.actualizarEspacio({ id, ocupado: estado }).subscribe(() => {
+      this.cargarEspacios();
+    });
   }
+
+
+
+
 }

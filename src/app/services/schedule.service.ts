@@ -1,44 +1,36 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, doc, setDoc, updateDoc, collectionData } from '@angular/fire/firestore';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
 export class ScheduleService {
-  private horariosRef = collection(this.firestore, 'horarios'); // Referencia a la colección "horarios"
+  private apiUrl = 'http://localhost:8080/parqueaderos/rs/horarios'; 
 
-  constructor(private firestore: Firestore) {}
+  constructor(private http: HttpClient) {}
 
-  // Obtener lista de horarios
   obtenerHorarios(): Observable<any[]> {
-    return collectionData(this.horariosRef, { idField: 'id' }); // Incluye el ID como campo "id"
+    return this.http.get<any[]>(`${this.apiUrl}/obtenerTodos`);
   }
 
-  // Definir un horario
-  definirHorario(dia: string, horario: any): Observable<void> {
-    const horarioDocRef = doc(this.firestore, `horarios/${dia}`);
-    return new Observable((observer) => {
-      setDoc(horarioDocRef, horario, { merge: true })
-        .then(() => {
-          observer.next();
-          observer.complete();
-        })
-        .catch((error) => observer.error(error));
-    });
+  definirHorario(horario: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}`, horario);
+  }
+  
+
+  actualizarHorario(horario: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}`, horario);
   }
 
-  // Actualizar un horario existente
-  actualizarHorario(dia: string, horario: any): Observable<void> {
-    const horarioDocRef = doc(this.firestore, `horarios/${dia}`);
-    return new Observable((observer) => {
-      updateDoc(horarioDocRef, horario)
-        .then(() => {
-          observer.next();
-          observer.complete();
-        })
-        .catch((error) => observer.error(error));
-    });
+  obtenerHorariosPorDia(dia: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/dia/${dia}`);
   }
+
+
+  obtenerHorariosPorEspacio(espacioId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/espacio/${espacioId}`);
+  }
+
+
 }

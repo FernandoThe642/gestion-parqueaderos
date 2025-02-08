@@ -6,16 +6,16 @@
   <table class="tabla-tarifas">
     <thead>
       <tr>
-        <th>Tipo</th>
-        <th>Valor</th>
+        <th>Nombre</th>
+        <th>Precio</th> <!-- Cambiado de "Valor" a "Precio" -->
         <th>Descripción</th>
         <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let tarifa of tarifas">
-        <td>{{ tarifa.tipo }}</td>
-        <td>{{ tarifa.valor | currency }}</td>
+        <td>{{ tarifa.nombre }}</td>
+        <td>{{ tarifa.precio | currency }}</td>
         <td>{{ tarifa.descripcion }}</td>
         <td>
           <button (click)="editarTarifa(tarifa)">Editar</button>
@@ -23,6 +23,7 @@
         </td>
       </tr>
     </tbody>
+       
   </table>
 
   <!-- Formulario para agregar/editar tarifas -->
@@ -30,14 +31,16 @@
     <h3 *ngIf="tarifaSeleccionada">Editar Tarifa</h3>
     <h3 *ngIf="!tarifaSeleccionada">Crear Nueva Tarifa</h3>
     <form [formGroup]="formularioTarifa" (ngSubmit)="tarifaSeleccionada ? guardarCambios() : crearTarifa()">
-      <label for="tipo">Tipo</label>
-      <input id="tipo" type="text" formControlName="tipo" />
+      <label for="nombre">Nombre</label>
+      <input id="nombre" type="text" formControlName="nombre" required />
+      
 
-      <label for="valor">Valor</label>
-      <input id="valor" type="number" formControlName="valor" />
+      <label for="precio">Precio</label>
+      <input id="precio" type="number" formControlName="precio" required />
+      
 
       <label for="descripcion">Descripción</label>
-      <textarea id="descripcion" formControlName="descripcion"></textarea>
+      <textarea id="descripcion" formControlName="descripcion" required></textarea>
 
       <div class="botones">
         <button type="submit">{{ tarifaSeleccionada ? 'Guardar Cambios' : 'Crear' }}</button>

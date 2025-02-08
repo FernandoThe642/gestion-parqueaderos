@@ -1,37 +1,38 @@
 <div class="usuario-dashboard">
-    <h2>Bienvenido, {{ usuario?.nombre }}</h2>
+  <h2>Bienvenido, {{ usuario?.nombre }}</h2>
 
-<section>
+  <section>
     <h3>Horario de Atención</h3>
     <ul>
-    <li *ngFor="let horario of horarios">
-        <strong style="text-transform: uppercase;">{{ horario.id }}</strong>: {{ horario.horaApertura }} - {{ horario.horaCierre }}
-    </li>
+      <li *ngFor="let horario of horarios">
+        <strong style="text-transform: uppercase;">{{ horario.dia }}</strong>: {{ horario.inicio }} - {{ horario.fin }}
+      </li>
     </ul>
-</section>
+  </section>
 
-<section>
+  <section>
     <h3>Mis Contratos</h3>
     <table>
-    <thead>
+      <thead>
         <tr>
-        <th>Espacio</th>
-        <th>Fecha Inicio</th>
-        <th>Fecha Fin</th>
-        <th>Monto</th>
+          <th>Espacio</th>
+          <th>Fecha Inicio</th>
+          <th>Fecha Fin</th>
+          <th>Monto</th>
         </tr>
-    </thead>
-    <tbody>
+      </thead>
+      <tbody>
         <tr *ngFor="let contrato of contratos">
-          <td>{{ obtenerNombreEspacio(contrato.espacio) }}</td>
-        <td>{{ contrato.inicio }}</td>
-        <td>{{ contrato.fin }}</td>
-        <td>{{ calcularMonto(contrato) | currency }}</td>
+          <td>{{ obtenerNombreEspacio(contrato.espacio.id) }}</td>
+          <td>{{ contrato.inicio | date:'dd/MM/yyyy' }}</td>
+          <td>{{ contrato.fin | date:'dd/MM/yyyy' }}</td>
+          <td>{{ calcularMonto(contrato) | currency }}</td>
         </tr>
-    </tbody>
+      </tbody>
     </table>
-</section>
-<section>
+  </section>
+
+  <section>
     <h3>Espacios Disponibles</h3>
     <div class="contenedor-espacios">
       <div 
@@ -42,7 +43,7 @@
       </div>
     </div>
   </section>
-  
+
   <div *ngIf="mostrarModalContrato" class="modal">
     <div class="modal-contenido">
       <h3>Crear Contrato para {{ espacioSeleccionado?.nombre }}</h3>
@@ -53,16 +54,16 @@
             {{ tarifa.tipo }} - {{ tarifa.valor | currency }}
           </option>
         </select>
-  
+
         <label for="inicio">Fecha de Inicio</label>
         <input id="inicio" type="date" formControlName="inicio" />
-  
+
         <label for="meses">Número de Meses</label>
         <input id="meses" type="number" formControlName="meses" (change)="calcularFechaFin()" />
-  
+
         <label for="fin">Fecha de Fin</label>
         <input id="fin" type="date" formControlName="fin" readonly />
-  
+
         <div class="botones">
           <button type="submit">Crear</button>
           <button type="button" (click)="cerrarModalContrato()">Cancelar</button>
@@ -70,6 +71,4 @@
       </form>
     </div>
   </div>
-  
 </div>
-  

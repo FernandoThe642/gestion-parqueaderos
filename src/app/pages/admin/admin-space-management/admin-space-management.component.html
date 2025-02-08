@@ -1,15 +1,14 @@
 <div *ngIf="cargando">Cargando espacios...</div>
 <div *ngIf="!cargando">
     <h2>Gestión de espacios</h2>
-    <!-- Botón para agregar espacio -->
+
     <button class="btn-agregar" (click)="abrirModalEspacio()">Agregar</button>
 
     <div class="contenedor-espacios">
-    <div 
-        *ngFor="let espacio of espacios" 
+        <div *ngFor="let espacio of espacios" 
         class="espacio" 
-        [class.disponible]="espacio.disponible" 
-        [class.ocupado]="!espacio.disponible"
+        [class.disponible]="!espacio.ocupado" 
+        [class.ocupado]="espacio.ocupado"
         (click)="abrirModalContrato(espacio)">
         {{ espacio.nombre }}
     </div>
@@ -19,25 +18,25 @@
 <!-- Modal para crear o editar contrato -->
 <div *ngIf="mostrarModalContrato" class="modal">
     <div class="modal-contenido">
-        <h3>{{ espacioSeleccionado?.disponible ? 'Crear Contrato' : 'Editar Contrato' }}</h3>
+        <h3>{{ !espacioSeleccionado?.ocupado ? 'Crear Contrato' : 'Editar Contrato' }}</h3>
         <form [formGroup]="formularioContrato" (ngSubmit)="crearContrato()">
         <label for="cedula">Usuario</label>
         <select
-            id="cedula"
-            formControlName="cedula"
-            [disabled]="!espacioSeleccionado?.disponible"
-        >
-            <option *ngFor="let usuario of usuarios" [value]="usuario.cedula">
+        id="cedula"
+        formControlName="cedula"
+        [disabled]="espacioSeleccionado?.ocupado">
+        <option *ngFor="let usuario of usuarios" [value]="usuario.cedula">
             {{ usuario.nombre }} ({{ usuario.cedula }})
-            </option>
-        </select>
+        </option>
+    </select>
 
-        <label for="tarifa">Tarifa</label>
-        <select id="tarifa" formControlName="tarifa">
-            <option *ngFor="let tarifa of tarifas" [value]="tarifa.id">
-            {{ tarifa.tipo }} - {{ tarifa.valor | currency }}
-            </option>
-        </select>
+    <label for="tarifa">Tarifa</label>
+    <select id="tarifa" formControlName="tarifa">
+        <option *ngFor="let tarifa of tarifas" [value]="tarifa.id">
+            {{ tarifa.nombre }} - {{ tarifa.precio | currency }}
+        </option>
+    </select>
+    
 
         <label for="inicio">Fecha de Inicio</label>
         <input id="inicio" type="date" formControlName="inicio" />
@@ -62,18 +61,26 @@
     </div>
 
 
-    <!-- Modal para agregar espacio -->
-    <div *ngIf="mostrarModalEspacio" class="modal">
-    <div class="modal-contenido">
+
+<div *ngIf="mostrarModalEspacio" class="modal">
+<div class="modal-contenido">
     <h3>Agregar Espacio</h3>
     <form [formGroup]="formularioEspacio" (ngSubmit)="agregarEspacio()">
-        <label for="nombreEspacio">Nombre del Espacio</label>
-        <input id="nombreEspacio" type="text" formControlName="nombre" />
+    
+    <label for="nombreEspacio">Nombre del Espacio</label>
+    <input id="nombreEspacio" type="text" formControlName="nombre" />
 
-        <div class="botones">
+    <label for="tarifa">Tarifa</label>
+    <select id="tarifa" formControlName="tarifa">
+        <option *ngFor="let tarifa of tarifas" [value]="tarifa.id">
+        {{ tarifa.nombre }} - {{ tarifa.precio | currency }}
+        </option>
+    </select>
+
+    <div class="botones">
         <button type="submit">Agregar</button>
         <button type="button" (click)="cerrarModalEspacio()">Cancelar</button>
-        </div>
-    </form>
     </div>
+    </form>
+</div>
 </div>

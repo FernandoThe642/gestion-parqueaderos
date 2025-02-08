@@ -13,49 +13,36 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class LogInComponent {
   email: string = ''
-  password: string = ''
+  contrasenia: string = ''  
 
   constructor(private authService: AuthService, private router: Router) {}
 
   iniciarSesion() {
-    this.authService.iniciarSesionConCorreoYContrasena(this.email, this.password).subscribe(
-      (usuarioCredential) => {
-        console.log('Usuario ingresado:', usuarioCredential)
-        this.router.navigate(['/home'])
+    this.authService.iniciarSesionConCorreoYContrasena(this.email, this.contrasenia).subscribe({
+      next: (response) => {
+        console.log('Usuario autenticado:', response) 
+        console.log('UInicio de sesión exitoso')  
+        this.router.navigate(['/home']) 
       },
-      (error) => {
-        console.error('Error al iniciar sesión:', error)
-        alert('Error al iniciar sesión. Verifique sus credenciales.')
+      error: (error) => {
+        console.error('Error al iniciar sesión:', error) 
+        if (error.status === 401) {
+          alert('Credenciales incorrectas. Verifique su email y contraseña.') 
+        } else {
+          alert('Error en el servidor. Intente más tarde.') 
+        }
       }
-    )
-  }
-
-  iniciarSesionConGoogle() {
-    this.authService.iniciarSesionConGoogle().subscribe(
-      (usuarioCredential) => {
-        console.log('Usuario ingresado con Google:', usuarioCredential)
-        this.router.navigate(['/home'])
-      },
-      (error) => {
-        console.error('Error al iniciar sesión con Google:', error)
-        alert('Error al iniciar sesión con Google.')
-      }
-    )
+    }) 
   }
 
   cerrarSesion() {
-    this.authService.cerrarSesion().subscribe(
-      () => {
-        console.log('Sesión cerrada')
-        this.router.navigate(['/login'])
-      },
-      (error) => {
-        console.error('Error al cerrar sesión:', error)
-      }
-    )
+    this.authService.cerrarSesion() 
+    console.log('Sesión cerrada') 
+    
+    this.router.navigate(['/login']) 
   }
 
   registrarse() {
-    this.router.navigate(['/signup'])
+    this.router.navigate(['/signup']) 
   }
 }

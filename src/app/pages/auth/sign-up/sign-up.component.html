@@ -4,19 +4,19 @@
     <form (ngSubmit)="registrar()">
       <fieldset>
         <label for="email">Correo electrónico</label>
-        <input id="email" [(ngModel)]="email" name="email" type="email" required />
+        <input id="email" [(ngModel)]="usuario.email" name="email" type="email" required />
 
-        <label for="password">Contraseña</label>
-        <input id="password" [(ngModel)]="password" name="password" type="password" required />
+        <label for="contrasenia">Contraseña</label>
+        <input id="contrasenia" [(ngModel)]="usuario.contrasenia" name="contrasenia" type="password" required />
 
         <label for="nombre">Nombre</label>
-        <input id="nombre" [(ngModel)]="nombre" name="nombre" type="text" required />
+        <input id="nombre" [(ngModel)]="usuario.nombre" name="nombre" type="text" required />
 
         <label for="telefono">Teléfono</label>
-        <input id="telefono" [(ngModel)]="telefono" name="telefono" type="text" required />
+        <input id="telefono" [(ngModel)]="usuario.telefono" name="telefono" type="text" required />
 
         <label for="cedula">Cédula</label>
-        <input id="cedula" [(ngModel)]="cedula" name="cedula" type="text" required />
+        <input id="cedula" [(ngModel)]="usuario.cedula" name="cedula" type="text" required />
 
         <button type="submit">Registrarse</button>
       </fieldset>

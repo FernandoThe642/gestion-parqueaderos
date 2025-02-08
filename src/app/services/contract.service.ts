@@ -1,71 +1,39 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, collectionData, doc, updateDoc, deleteDoc } from '@angular/fire/firestore';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
 export class ContractService {
-  private contratosRef = collection(this.firestore, 'contratos'); // Referencia a la colección "contratos"
+  private apiUrl = 'http://localhost:8080/parqueaderos/rs/contratos';
 
-  constructor(private firestore: Firestore) {}
+  constructor(private http: HttpClient) {}
 
-  // Obtener lista de contratos
   obtenerContratos(): Observable<any[]> {
-    return collectionData(this.contratosRef, { idField: 'id' }); // Incluye el ID como campo "id"
+    return this.http.get<any[]>(`${this.apiUrl}/listar`);
   }
 
-  // Crear un nuevo contrato
-  crearContrato(datos: any): Observable<any> {
-    return new Observable((observer) => {
-      addDoc(this.contratosRef, datos)
-        .then((docRef) => {
-          observer.next({ ...datos, id: docRef.id });
-          observer.complete();
-        })
-        .catch((error) => observer.error(error));
-    });
+  crearContrato(contrato: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}`, contrato);
   }
 
-  // Actualizar un contrato existente
-  actualizarContrato(id: string, datos: any): Observable<void> {
-    const contratoDocRef = doc(this.firestore, `contratos/${id}`);
-    return new Observable((observer) => {
-      updateDoc(contratoDocRef, datos)
-        .then(() => {
-          observer.next();
-          observer.complete();
-        })
-        .catch((error) => observer.error(error));
-    });
+  actualizarContrato(contrato: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}`, contrato);
   }
 
-  // Eliminar un contrato
-  eliminarContrato(id: string): Observable<void> {
-    const contratoDocRef = doc(this.firestore, `contratos/${id}`);
-    return new Observable((observer) => {
-      deleteDoc(contratoDocRef)
-        .then(() => {
-          observer.next();
-          observer.complete();
-        })
-        .catch((error) => observer.error(error));
-    });
+
+  eliminarContrato(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  obtenerContratoPorEspacio(espacioId: string): Observable<any> {
-    const contratoDocRef = collection(this.firestore, 'contratos');
-    return new Observable((observer) => {
-      collectionData(contratoDocRef, { idField: 'id' }).subscribe((contratos: any[]) => {
-        const contrato = contratos.find((c) => c.espacio === espacioId);
-        if (contrato) {
-          observer.next(contrato);
-        } else {
-          observer.next(null); // No hay contrato asociado
-        }
-        observer.complete();
-      });
-    });
+  obtenerContratosActivos(fechaInicio: string, fechaFin: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/activos?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`);
   }
+
+
+obtenerContratosPorUsuario(idUsuario: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/usuario/${idUsuario}`);
+}
+
 }

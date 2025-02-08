@@ -9,6 +9,7 @@
         <th>Cédula</th>
         <th>Teléfono</th>
         <th>Email</th>
+        <th>Rol</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -19,6 +20,7 @@
         <td>{{ usuario.cedula }}</td>
         <td>{{ usuario.telefono }}</td>
         <td>{{ usuario.email }}</td>
+        <td>{{ usuario.rol }}</td>
         <td>
           <button (click)="editarUsuario(usuario)">Editar</button>
         </td>
@@ -43,9 +45,13 @@
         <input id="cedula" type="text" formControlName="cedula" />
         <br>
         <label for="email">Email:    </label>
-        <input id="email" type="email" formControlName="email"  />
-
-
+        <input id="email" type="email" formControlName="email" [disabled]="true" /> 
+        <br>
+        <label for="rol">Rol: </label>
+        <select id="rol" formControlName="rol">
+          <option value="user">Usuario</option>
+          <option value="admin">Administrador</option>
+        </select>
 
         <div class="modal-actions">
           <button type="submit">Guardar</button>

@@ -4,7 +4,7 @@ import { ContractService } from '../../../services/contract.service';
 import { UserService } from '../../../services/user.service';
 import { SpaceService } from '../../../services/space.service';
 import { TariffService } from '../../../services/tariff.service';
-import { ReactiveFormsModule,  FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 
@@ -36,21 +36,21 @@ export class UserDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.spaceService.obtenerEspacios().subscribe((espacios) => {
-      this.espacios = espacios;
-    });
- 
     this.cargarUsuario();
     this.cargarHorarios();
     this.cargarTarifas();
-
+    this.cargarEspacios();
     this.inicializarFormularioContrato();
   }
+
   cargarUsuario(): void {
-    this.userService.obtenerPerfil().subscribe((perfil) => {
-      this.usuario = perfil;
-      this.cargarContratos();
-    });
+    const email = localStorage.getItem('email');
+    if (email) {
+      this.userService.obtenerUsuario(email).subscribe((usuario) => {
+        this.usuario = usuario;
+        this.cargarContratos();
+      });
+    }
   }
 
   cargarHorarios(): void {
@@ -65,31 +65,30 @@ export class UserDashboardComponent implements OnInit {
     });
   }
 
-
+  cargarEspacios(): void {
+    this.spaceService.obtenerEspaciosDisponibles().subscribe((espacios) => {
+      this.espacios = espacios;
+    });
+  }
 
   cargarContratos(): void {
     this.contractService.obtenerContratos().subscribe((contratos) => {
       this.contratos = contratos.filter(
-        (contrato) => contrato.nombreUsuario === this.usuario?.nombre
+        (contrato) => contrato.usuario.id === this.usuario.id
       );
     });
   }
-  
-
-
 
   calcularMonto(contrato: any): number {
-    const tarifa = this.tarifas.find((t) => t.id === contrato.tarifa);
-    if (!tarifa) return 0;
-
-    return contrato.meses * tarifa.valor;
+    if (!contrato || !contrato.tarifa || !contrato.tarifa.valor) return 0;
+  
+    const fechaInicio = new Date(contrato.inicio);
+    const fechaFin = new Date(contrato.fin);
+    const diferenciaMeses = (fechaFin.getFullYear() - fechaInicio.getFullYear()) * 12 + fechaFin.getMonth() - fechaInicio.getMonth();
+  
+    return diferenciaMeses * contrato.tarifa.valor;
   }
-
-  cargarEspacios(): void {
-    this.spaceService.obtenerEspacios().subscribe((espacios) => {
-      this.espacios = espacios.filter((espacio) => espacio.disponible); // Mostrar solo disponibles
-    });
-  }
+   
 
   inicializarFormularioContrato(): void {
     this.formularioContrato = this.fb.group({
@@ -117,31 +116,31 @@ export class UserDashboardComponent implements OnInit {
     fin.setMonth(fin.getMonth() + parseInt(meses, 10));
     this.formularioContrato.patchValue({ fin: fin.toISOString().split('T')[0] });
   }
-  obtenerNombreEspacio(id: string): string {
+
+  obtenerNombreEspacio(id: number): string {
     const espacio = this.espacios.find((e) => e.id === id);
     return espacio ? espacio.nombre : 'Desconocido';
   }
-  
-  
-  
 
   crearContrato(): void {
     if (this.formularioContrato.valid) {
       const datos = {
-        ...this.formularioContrato.value,
-        espacio: this.espacioSeleccionado.id,
-        cedula: this.usuario.cedula,
-        nombreUsuario: this.usuario.nombre,
-        estado: 'Activo',
+        inicio: this.formularioContrato.value.inicio,
+        fin: this.formularioContrato.value.fin,
+        usuario: { id: this.usuario.id },
+        espacio: { id: this.espacioSeleccionado.id },
+        terminacion: 'Activo',
       };
 
       this.contractService.crearContrato(datos).subscribe(() => {
-        this.spaceService.actualizarEspacio(this.espacioSeleccionado.id, { disponible: false }).subscribe(() => {
-          this.cerrarModalContrato();
-          this.cargarEspacios();
-        });
+        this.spaceService
+          .actualizarEspacio({ id: this.espacioSeleccionado.id, ocupado: true })
+          .subscribe(() => {
+            this.cerrarModalContrato();
+            this.cargarEspacios();
+            this.cargarContratos();
+          });
       });
     }
   }
-
 }

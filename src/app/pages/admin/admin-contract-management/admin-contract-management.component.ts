@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ContractService } from '../../../services/contract.service';
 import { UserService } from '../../../services/user.service';
 import { SpaceService } from '../../../services/space.service';
-import { CommonModule } from '@angular/common';
 import { TariffService } from '../../../services/tariff.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-admin-contract-management',
@@ -34,6 +34,7 @@ export class AdminContractManagementComponent implements OnInit {
     this.cargarDatos();
     this.inicializarFormulario();
   }
+
   cargarDatos(): void {
     this.cargando = true;
 
@@ -57,17 +58,19 @@ export class AdminContractManagementComponent implements OnInit {
 
   inicializarFormulario(): void {
     this.formularioContrato = this.fb.group({
-      tarifa: [''],
-      inicio: [''],
+      tarifa: ['', Validators.required],
+      inicio: ['', Validators.required],
+      meses: [1, Validators.required],
+      fin: [{ value: '', disabled: true }]
     });
   }
 
-  obtenerNombreUsuario(uid: string): string {
-    const usuario = this.usuarios.find((u) => u.uid === uid);
+  obtenerNombreUsuario(id: number): string {
+    const usuario = this.usuarios.find((u) => u.id === id);
     return usuario ? usuario.nombre : 'Desconocido';
   }
 
-  obtenerNombreEspacio(id: string): string {
+  obtenerNombreEspacio(id: number): string {
     const espacio = this.espacios.find((e) => e.id === id);
     return espacio ? espacio.nombre : 'Desconocido';
   }
@@ -88,18 +91,32 @@ export class AdminContractManagementComponent implements OnInit {
     this.formularioContrato.patchValue({
       tarifa: contrato.tarifa,
       inicio: contrato.inicio,
-      
+      meses: this.calcularMeses(contrato.inicio, contrato.fin)
     });
+  }
+
+  calcularMeses(inicio: string, fin: string): number {
+    const fechaInicio = new Date(inicio);
+    const fechaFin = new Date(fin);
+    return (fechaFin.getFullYear() - fechaInicio.getFullYear()) * 12 + (fechaFin.getMonth() - fechaInicio.getMonth());
+  }
+
+  calcularFechaFin(): void {
+    const inicio = new Date(this.formularioContrato.value.inicio);
+    const meses = this.formularioContrato.value.meses || 1;
+    const fin = new Date(inicio);
+    fin.setMonth(fin.getMonth() + meses);
+    this.formularioContrato.patchValue({ fin: fin.toISOString().split('T')[0] });
   }
 
   guardarCambios(): void {
     if (this.formularioContrato.valid && this.contratoSeleccionado) {
       const datos = {
-        ...this.formularioContrato.value,
         id: this.contratoSeleccionado.id,
+        ...this.formularioContrato.value
       };
 
-      this.contractService.actualizarContrato(this.contratoSeleccionado.id, datos).subscribe(() => {
+      this.contractService.actualizarContrato(datos).subscribe(() => {
         this.cargarDatos();
         this.cancelarEdicion();
       });

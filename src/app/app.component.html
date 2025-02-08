@@ -11,7 +11,7 @@
       <img type="image/webp" src="./assets/logo.webp" alt="Logo UPS">
       <h1 *ngIf="!usuarioAutenticado">Parqueadero Plus</h1>
       <h1 *ngIf="usuarioAutenticado && rolUsuario === 'admin'">Bienvenido Administrador</h1>
-      <h1 *ngIf="usuarioAutenticado && rolUsuario !== 'admin'">Bienvenido</h1>         
+      <h1 *ngIf="usuarioAutenticado && rolUsuario !== 'admin'">Bienvenido Usuario</h1>         
       <button class="auth-button" *ngIf="!usuarioAutenticado" (click)="iniciarSesion()">Iniciar sesión</button>
       <button class="auth-button" *ngIf="usuarioAutenticado" (click)="cerrarSesion()">Cerrar sesión</button>
     </header>

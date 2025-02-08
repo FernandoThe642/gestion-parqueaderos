@@ -2,32 +2,27 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { take, switchMap } from 'rxjs/operators';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import { map } from 'rxjs/operators';
 
 export const canActivateAdmin: CanActivateFn = (): Observable<boolean> => {
-  const authService = inject(AuthService)
-  const firestore = inject(Firestore)
-  const router = inject(Router)
-
-  return authService.obtenerEstadoAutenticacion().pipe(
-    take(1),
-    switchMap(async (usuario) => {
-      if (usuario) {
-        // Verificar el rol en Firestore
-        const userDocRef = doc(firestore, `usuarios/${usuario.uid}`)
-        const docSnapshot = await getDoc(userDocRef)
-
-        if (docSnapshot.exists() && docSnapshot.data()?.["role"] === 'admin') {
-          return true  // El usuario es administrador, permitir acceso
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  
+  return of(authService.tokenValido()).pipe(
+    map(isAuthenticated => {
+      if (isAuthenticated) {
+        const token = authService.obtenerToken();
+        const decodedToken = token ? JSON.parse(atob(token.split('.')[1])) : null;
+        if (decodedToken && decodedToken.rol === 'admin') {
+          return true;
         } else {
-          router.navigate(['/home'])  // Redirigir si no es administrador
-          return false
+          router.navigate(['/home']);
+          return false;
         }
       } else {
-        router.navigate(['/login'])  // Redirigir al login si no está autenticado
-        return false
+        router.navigate(['/login']);
+        return false;
       }
     })
-  )
-}
+  );
+};

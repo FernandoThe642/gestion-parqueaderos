@@ -1,74 +1,42 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, collectionData, doc, updateDoc, deleteDoc, getDoc } from '@angular/fire/firestore';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SpaceService {
-  private espaciosRef = collection(this.firestore, 'espacios');
+  private apiUrl = 'http://localhost:8080/parqueaderos/rs/espacios'; 
 
-  constructor(private firestore: Firestore) {}
+  constructor(private http: HttpClient) {}
 
-  // Obtener la lista de espacios
   obtenerEspacios(): Observable<any[]> {
-    return collectionData(this.espaciosRef, { idField: 'id' });
+    return this.http.get<any[]>(`${this.apiUrl}`);
   }
 
-  // Crear un nuevo espacio
-  crearEspacio(datos: any): Observable<any> {
-    return new Observable((observer) => {
-      addDoc(this.espaciosRef, datos)
-        .then((docRef) => {
-          observer.next({ ...datos, id: docRef.id });
-          observer.complete();
-        })
-        .catch((error) => observer.error(error));
-    });
+  crearEspacio(espacio: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}`, espacio);
   }
 
-  // Actualizar un espacio existente
-  actualizarEspacio(id: string, datos: any): Observable<void> {
-    const espacioDocRef = doc(this.firestore, `espacios/${id}`);
-    return new Observable((observer) => {
-      updateDoc(espacioDocRef, datos)
-        .then(() => {
-          observer.next();
-          observer.complete();
-        })
-        .catch((error) => observer.error(error));
-    });
+  actualizarEspacio(espacio: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}`, espacio);
   }
 
-  // Eliminar un espacio
-  eliminarEspacio(id: string): Observable<void> {
-    const espacioDocRef = doc(this.firestore, `espacios/${id}`);
-    return new Observable((observer) => {
-      deleteDoc(espacioDocRef)
-        .then(() => {
-          observer.next();
-          observer.complete();
-        })
-        .catch((error) => observer.error(error));
-    });
+  eliminarEspacio(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+  // Obtener la lista de espacios disponibles
+  obtenerEspaciosDisponibles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/disponibles`);
   }
 
-  // Obtener un espacio por ID
-  obtenerEspacioPorId(id: string): Observable<any> {
-    const espacioDocRef = doc(this.firestore, `espacios/${id}`);
-    return new Observable((observer) => {
-      getDoc(espacioDocRef)
-        .then((docSnap) => {
-          if (docSnap.exists()) {
-            observer.next({ id, ...docSnap.data() });
-          } else {
-            observer.error(new Error('Espacio no encontrado'));
-          }
-          observer.complete();
-        })
-        .catch((error) => observer.error(error));
-    });
+  // Obtener la lista de espacios reservados
+  obtenerEspaciosReservados(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/reservados`);
   }
 
-
+  // Obtener espacios por tarifa
+  obtenerEspaciosPorTarifa(tarifaId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/tarifa/${tarifaId}`);
+  }
 }

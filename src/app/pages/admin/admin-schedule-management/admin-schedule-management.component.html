@@ -3,32 +3,41 @@
   <div *ngIf="!cargando">
     <h2>Gestión de Horarios</h2>
 
-    <!-- Lista de días de la semana -->
-    <ul class="lista-dias">
-      <li *ngFor="let dia of diasDeLaSemana">
-        <span>{{ dia | titlecase }}</span>
-        <span *ngIf="!diaSeleccionado || diaSeleccionado !== dia">
-          {{ obtenerHorario(dia) }}
-        </span>
-        <button *ngIf="!diaSeleccionado || diaSeleccionado !== dia" (click)="definirHorario(dia)">Editar</button>
-      </li>
-    </ul>
+    <table class="tabla-horarios">
+      <thead>
+        <tr>
+          <th *ngFor="let dia of diasDeLaSemana">{{ dia }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td *ngFor="let dia of diasDeLaSemana">
+            <div class="horario">
+              <span>{{ obtenerHorario(dia) }}</span>
+              <button (click)="abrirModal(dia)">Editar</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    <!-- Formulario para definir/editar horarios -->
-    <div *ngIf="diaSeleccionado" class="formulario">
-      <h3>Definir Horario para {{ diaSeleccionado | titlecase }}</h3>
-      <form [formGroup]="formularioHorario" (ngSubmit)="guardarHorario()">
-        <label for="horaApertura">Hora de Apertura</label>
-        <input id="horaApertura" type="time" formControlName="horaApertura" />
+    <!-- Modal para editar horario -->
+    <div class="modal" *ngIf="diaSeleccionado">
+      <div class="modal-contenido">
+        <h3>Definir Horario para {{ diaSeleccionado }}</h3>
+        <form [formGroup]="formularioHorario" (ngSubmit)="guardarHorario()">
+          <label for="inicio">Hora de Inicio</label>
+          <input id="inicio" type="time" formControlName="inicio" />
 
-        <label for="horaCierre">Hora de Cierre</label>
-        <input id="horaCierre" type="time" formControlName="horaCierre" />
+          <label for="fin">Hora de Cierre</label>
+          <input id="fin" type="time" formControlName="fin" />
 
-        <div class="botones">
-          <button type="submit">Guardar</button>
-          <button type="button" (click)="cancelarEdicion()">Cancelar</button>
-        </div>
-      </form>
+          <div class="botones">
+            <button type="submit">Guardar</button>
+            <button type="button" (click)="cerrarModal()">Cancelar</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>

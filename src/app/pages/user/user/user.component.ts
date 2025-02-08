@@ -11,78 +11,81 @@ import { CommonModule } from '@angular/common';
   styleUrl: './user.component.scss'
 })
 export class UserComponent implements OnInit {
-  perfilForm!: FormGroup;
-  fotoPerfilUrl: string = '';
+  usuarioForm!: FormGroup;
+  fotoPerfilUrl: string = ''; // Solo para mostrar la foto de perfil (no editable)
   cargando: boolean = false;
   mensaje: string = '';
-  editandoFoto: boolean = false; // Controla la visibilidad del campo para subir fotos
+  usuarioId: number | null = null; // Guardar el ID del usuario
 
   constructor(private userService: UserService, private fb: FormBuilder) {}
 
   ngOnInit(): void {
     this.inicializarFormulario();
-    this.cargarPerfil();
+    this.cargarUsuario();
   }
 
   inicializarFormulario(): void {
-    this.perfilForm = this.fb.group({
-      email: [{ value: '', disabled: true }], // Ahora email aparece primero
+    this.usuarioForm = this.fb.group({
+      email: [{ value: '', disabled: true }], // El email no se puede editar
       nombre: [''],
       telefono: [''],
       cedula: [''] 
     });
   }
 
-  cargarPerfil(): void {
+  cargarUsuario(): void {
     this.cargando = true;
-    this.userService.obtenerPerfil().subscribe((perfil) => {
-      if (perfil) {
-        this.perfilForm.patchValue({
-          email: perfil.email,
-          nombre: perfil.nombre,
-          telefono: perfil.telefono || '',
-          cedula: perfil.cedula || ''
-        });
-        this.fotoPerfilUrl = perfil.fotoPerfil || perfil.fotoURL || ''; // Prioriza fotoPerfil, luego fotoURL
-      }
+    
+    // Obtener el token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.mensaje = 'Error: No se encontró el token de autenticación';
       this.cargando = false;
+      return;
+    }
+  
+    // Extraer el email del token JWT
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const email = payload.sub; // Asegúrate de que el backend pone el email en "sub"
+  
+    if (!email) {
+      this.mensaje = 'Error: No se encontró el email en el token';
+      this.cargando = false;
+      return;
+    }
+  
+    this.userService.obtenerUsuario(email).subscribe({
+      next: (usuario) => {
+        if (usuario) {
+          this.usuarioForm.patchValue({
+            email: usuario.email,
+            nombre: usuario.nombre,
+            telefono: usuario.telefono || '',
+            cedula: usuario.cedula || ''
+          });
+          this.fotoPerfilUrl = usuario.fotoPerfil || '';
+          this.usuarioId = usuario.id;
+        }
+        this.cargando = false;
+      },
+      error: () => {
+        this.mensaje = 'Error al cargar usuario';
+        this.cargando = false;
+      }
     });
   }
+  
 
-  actualizarPerfil(): void {
-    if (this.perfilForm.valid) {
-      const { nombre, telefono, cedula } = this.perfilForm.value;
-      this.userService.actualizarPerfil({ nombre, telefono, cedula }).subscribe(() => {
-        this.mensaje = 'Perfil actualizado exitosamente';
-      });
-    }
-  }
+  actualizarUsuario(): void {
+    if (this.usuarioForm.valid && this.usuarioId !== null) {
+      const { nombre, telefono, cedula } = this.usuarioForm.value;
 
-  editarFoto(): void {
-    if(this.editandoFoto==true){
-    this.editandoFoto = false; 
-    }else{
-      this.editandoFoto = true; 
-    }
-  }
-
-  subirFoto(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const archivo = input.files[0];
-      this.cargando = true;
-      this.userService.subirFotoPerfil(archivo).subscribe({
+      this.userService.actualizarUsuario(this.usuarioId, { nombre, telefono, cedula }).subscribe({
         next: () => {
-          this.fotoPerfilUrl = ''; // Limpia la URL momentáneamente
-          this.mensaje = 'Foto de perfil actualizada';
-          this.cargarPerfil(); // Recarga el perfil para obtener la nueva foto
-          this.cargando = false;
-          this.editandoFoto = false; // Salir del modo de edición
+          this.mensaje = 'Usuario actualizado correctamente';
         },
         error: () => {
-          this.mensaje = 'Error al subir la foto';
-          this.cargando = false;
-          this.editandoFoto = false;
+          this.mensaje = 'Error al actualizar usuario';
         }
       });
     }

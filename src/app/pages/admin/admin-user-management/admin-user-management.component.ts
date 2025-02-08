@@ -35,7 +35,8 @@ export class AdminUserManagementComponent implements OnInit {
       nombre: [''],
       telefono: [''],
       cedula: [''],
-      email: [{ value: '', disabled: true }] // El email no es editable
+      email: [{ value: '' }], 
+      rol: [''] 
     });
   }
 
@@ -46,10 +47,10 @@ export class AdminUserManagementComponent implements OnInit {
 
   guardarCambios(): void {
     if (this.formularioEdicion.valid && this.usuarioSeleccionado) {
-      const { nombre, telefono, cedula } = this.formularioEdicion.value;
-      const uid = this.usuarioSeleccionado.uid;
+      const { nombre, telefono, cedula, rol } = this.formularioEdicion.value;
+      const id = this.usuarioSeleccionado.id; // Se usa `id` en lugar de `uid`
 
-      this.userService.actualizarUsuario(uid, { nombre, telefono, cedula }).subscribe(() => {
+      this.userService.actualizarUsuario(id, { nombre, telefono, cedula, rol }).subscribe(() => {
         this.usuarioSeleccionado = null;
         this.cargarUsuarios(); // Recarga la lista de usuarios
       });
@@ -59,6 +60,4 @@ export class AdminUserManagementComponent implements OnInit {
   cancelarEdicion(): void {
     this.usuarioSeleccionado = null;
   }
-  
-
 }

@@ -3,15 +3,9 @@
     <div class="form-group">
       <img [src]="fotoPerfilUrl" alt="Foto de perfil" class="foto-perfil" *ngIf="fotoPerfilUrl" />
       <p *ngIf="!fotoPerfilUrl">No hay foto disponible</p>
-      <button type="button" (click)="editarFoto()">Editar Foto</button>
-  
-      <!-- Campo de subir foto, solo visible si se está editando -->
-      <div *ngIf="editandoFoto">
-        <input type="file" (change)="subirFoto($event)" />
-      </div>
     </div>
   
-    <form [formGroup]="perfilForm" (ngSubmit)="actualizarPerfil()">
+    <form [formGroup]="usuarioForm" (ngSubmit)="actualizarUsuario()">
       <div class="form-group">
         <label for="email">Email</label>
         <input id="email" type="email" formControlName="email" />
